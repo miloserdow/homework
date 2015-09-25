@@ -34,6 +34,7 @@ int sign(int x) {
 
 // Returns 0 if x fits within n bits or some other number otherwise
 int fitBits(int x, int n) {
+	// TODO: Probably it should return 1 or 0
 	return x >> n;
 }
 
@@ -57,6 +58,6 @@ int main() {
 		assert((fitBits(op1, op2 % 31) == 0) == (abs(op1) <= (int) pow(2, op2 % 31)));
 		assert(getByte(op1, op2 % 4) == ((unsigned char *)(&op1))[op2 % 4]);
 	}
-	printf("%d iterations OK\nAll test have been passed", TEST_COUNT); 
+	printf("%d iterations OK\nAll tests have been passed", TEST_COUNT); 
 	return 0;
 }

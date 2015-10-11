@@ -59,9 +59,9 @@ int getByte(int x, int n) {
 
 // Returns 1 if x is a power of 2 and 0 otherwise
 int isPower2(int x) {
-    int v1 = !(0x80000000 & x);
-    int v2 = x & (x - 1);
-    return !!x & !v2 & v1;
+	int v1 = !(0x80000000 & x);
+	int v2 = x & (x - 1);
+	return !!x & !v2 & v1;
 }
 
 // returns 1 if adding b to a will not lead to overflow of int

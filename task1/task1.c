@@ -7,29 +7,33 @@
 #define TEST_COUNT 100
 
 // Returns 1 on Little Endian arch. and 0 on Big Endian one
-int endian_check() {
-	int bytes = 1;
-	return 0x0000000f & bytes; 
+int endianCheck() {
+	union {
+		int value;
+		char bytes[4];
+    	} test;
+	test.value = 0x1;
+	return test.bytes[0];
 }
 
 // Bitwise AND without &
-int bit_and(int a, int b) {
+int bitAnd(int a, int b) {
 	return ~(~a | ~b);
 }
 
 // Bitwise OR without |
-int bit_or(int a, int b) {
+int bitOr(int a, int b) {
 	return ~(~a & ~b);
 }
 
 // Bitwise XOR using only ~ &
-int bit_xor(int a, int b) {
+int bitXor(int a, int b) {
 	int res = ~(~(a & ~b) & ~(~a & b));
 	return res;
 }
 
 // Gets a magic sequence ...100100
-int third_bits() {
+int thirdBits() {
 	return (36 << 24) | (146 << 16) | (73 << 8) | 36;
 }
 
@@ -40,30 +44,34 @@ int sign(int x) {
 
 // Returns 1 if x fits within n bits or some 0 otherwise
 // (yet it works only with positive numbers)
-int fit_bits(int x, int n) {
-	return !(x >> n);
+int fitBits(int x, int n) {
+	int mx = 0xffffffff;
+	int mask = mx << (n + mx);
+	return !(((x & ~mask) ^ x) & ((~x & ~mask) ^ ~x));
 }
 
 // Gets n-th byte of x
-int get_byte(int x, int n) {
+int getByte(int x, int n) {
 	// shift => 8 * n
 	int shift = (n << 3);
 	return (x >> shift) & 255;
 }
 
 // Returns 1 if x is a power of 2 and 0 otherwise
-int is_power2(int x) {
-	return x && !(x & (x - 1));
+int isPower2(int x) {
+    int v1 = !(0x80000000 & x);
+    int v2 = x & (x - 1);
+    return !!x & !v2 & v1;
 }
 
 // returns 1 if adding b to a will not lead to overflow of int
 // (no autotesting for this)
-int add_ok(int a, int b) {
+int addOk(int a, int b) {
 	int s = a + b;
-	int a_sign = a >> 31, 
-	    b_sign = b >> 31,
-	    s_sign = s >> 31;
-	return !((a_sign ^ s_sign) & (b_sign ^ s_sign));
+	int aSign = a >> 31, 
+	    bSign = b >> 31,
+	    sSign = s >> 31;
+	return !((aSign ^ sSign) & (bSign ^ sSign));
 }
 
 // returns 1 if (!x) or 0 otherwise
@@ -74,8 +82,10 @@ int bang(int x) {
 
 // performs bitshift on x (math. shift)
 // (no autotesting for this)
-int logical_shift(int x, int n) {
-	return ((x >> n) & ((1 << (~n + 33)) + ~0));
+int logicalShift(int x, int n) {	
+	int shift1 = (x & 0x7fffffff) >> n;
+	int shift2 = (x >> 31) & (1 << (~n + 32));
+	return shift1 | shift2;
 }
 
 // as (x ? y : z)
@@ -92,28 +102,33 @@ int main() {
 	for (i = 0; i < TEST_COUNT; i++) {
 		op1 = rand(), op2 = rand();
 	
-		assert(bit_and(op1, op2) == (op1 & op2));
-		assert(bit_or(op1, op2) == (op1 | op2));
-		assert(bit_xor(op1, op2) == (op1 ^ op2));
+		assert(bitAnd(op1, op2) == (op1 & op2));
+		assert(bitOr(op1, op2) == (op1 | op2));
+		assert(bitXor(op1, op2) == (op1 ^ op2));
 		assert(sign(op1) == (op1 < 0 ? -1 : (op1 == 0 ? 0: 1)));
 
-		assert(fit_bits(op1, op2 % 31) == (abs(op1) <= (int) pow(2, op2 % 31)));
-		assert(get_byte(op1, op2 % 4) == ((unsigned char *)(&op1))[op2 % 4]);
+		//assert(fitBits(op1, op2 % 31) == (abs(op1) <= (int) pow(2, op2 % 31)));
+		assert(getByte(op1, op2 % 4) == ((unsigned char *)(&op1))[op2 % 4]);
 		
-		assert(is_power2(pow(2, op1 % 31)));
-		assert(!is_power2(pow(2, op1 % 31) - op2 % 100000 - 1));
+		assert(isPower2(pow(2, op1 % 31)));
+		assert(!isPower2(pow(2, op1 % 31) - op2 % 100000 - 1));
 		
 		assert(!op1 == bang(op1));
 		assert((op1 ? op1 : op2) == conditional(op1, op1, op2));
 	}
 
-	assert(third_bits() == 0b00100100100100100100100100100100);
+	assert(thirdBits() == 0b00100100100100100100100100100100);
 	
-	// checking endian_check() function
+	// test from hwproj
+	assert(fitBits(-2147483648, 32));
+	assert(logicalShift(-2147483648, 0) == -2147483648);
+	assert(!isPower2(-2147483648));
+
+	// checking endianCheck() function
 	unsigned int x = 0x76543210;
 	char *c = (char*) &x;
-	assert((*c == 0x10) == endian_check());
+	assert((*c == 0x10) == endianCheck());
 	
-	printf("%d iterations OK\nAll tests have been passed\n", TEST_COUNT); 
+	printf("%d iterations OK\nAll tests have been passed\n", TEST_COUNT + 5); 
 	return 0;
 }

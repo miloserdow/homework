@@ -10,7 +10,7 @@
 int endianCheck() {
 	union {
 		int value;
-		char bytes[4];
+		char bytes[sizeof(int)];
     	} test;
 	test.value = 0x1;
 	return test.bytes[0];
@@ -45,9 +45,9 @@ int sign(int x) {
 // Returns 1 if x fits within n bits or some 0 otherwise
 // (yet it works only with positive numbers)
 int fitBits(int x, int n) {
-	int mx = 0xffffffff;
-	int mask = mx << (n + mx);
-	return !(((x & ~mask) ^ x) & ((~x & ~mask) ^ ~x));
+	int mx = (x >> 31) ^ x;
+	int mx2 = n + (~0);
+	return !(mx >> mx2);
 }
 
 // Gets n-th byte of x

@@ -26,6 +26,10 @@ int main() {
     int n;
     scanf("%d", &n);
     int *a = (int *) malloc(n * sizeof(int));
+    if (a == NULL) {
+        fprintf(stderr, "ERROR: malloc returned NULL\n");
+	exit(1);
+    }
     int i;
     for (i = 0; i < n; i++) {
         scanf("%d", &a[i]);

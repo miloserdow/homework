@@ -9,10 +9,17 @@ int main() {
     size_t nbytes = MAXLEN;
     char* cur = (char *) malloc (nbytes + 1);
     while (getline((char **) &cur, &nbytes, in) != -1) {
-        if (cur[0] && cur[1] && cur[0] == '/' && cur[1] == '/')
-            puts(cur + 2);
+        char *p = cur;
+        while (*p) {
+            if (p[0] && p[1] && p[0] == '/' && p[1] == '/') {
+                puts(p + 2);
+                break;
+            }
+            p++;
+        }
     }
     free(cur);
     fclose(in);
     return 0;
 }
+

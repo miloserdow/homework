@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct node node;
 
@@ -8,7 +9,7 @@ void* alloc(size_t sz) {
     void* res = malloc(sz);
     if (res == NULL) {
         fprintf(stderr, "ERROR: malloc returned NULL\n");
-	exit(1);
+        exit(1);
     }
     return res;
 }
@@ -18,100 +19,119 @@ struct node {
     node* next;
 };
 
+void append(node* root, int val) {
+    node* cur = root;
+    while (cur->next != NULL)
+        cur = cur->next;
+    node* tmp = (node*) alloc(sizeof(node));
+    tmp->value = val;
+    tmp->next = NULL;
+    cur->next = tmp;
+}
+
+void erase(node* root, int val) {
+    node* cur = root;
+    node* tmp = root;
+    while (cur->next != NULL) {
+        tmp = cur;
+        cur = cur->next;
+        if (cur->value == val) {
+            tmp->next = cur->next;
+            free(cur);
+            break;
+        }
+    }
+}
+
+void print(node* root) {
+    node* cur = root;
+    while (cur->next != NULL) {
+        cur = cur->next;
+        printf("%d ", cur->value);
+    }
+    printf("\n");
+}
+
+void clean(node* root) {
+    node* cur = root;
+    while (cur->next != NULL) {
+        node* tmp = cur;
+        free(tmp);
+        cur = cur->next;
+    }
+}
+
+void add_cycle(node* root) {
+    node* cur = root;
+    while (cur->next != NULL)
+        cur = cur->next;
+    cur->next = root;
+}
+
+int check_cycle(node* root) {
+    node* cur = root;
+    node* tmp = root;
+    char torch = 0, wasCycle = 0;
+    for (;;) {
+        if (torch) {
+            if (cur->next != NULL)
+                cur = cur->next;
+            else
+                break;
+        } else {
+            if (tmp->next != NULL && tmp->next->next != NULL)
+                tmp = tmp->next->next;
+            else
+                break;
+        }
+        if (tmp == cur) {
+            wasCycle = 1;
+            break;
+        }
+        torch = !torch;
+    }
+    return wasCycle;
+}
+
 int main() {
     node* root = (node*) alloc(sizeof(node));
     root->next = NULL;
     char c;
     printf("Type the command (h for help)\n");
     for (;;) {
-	do
-	    c = getchar();
-	while (isspace(c));
-	int val;
-        node* tmp;
-        node* cur;
+        do
+            c = getchar();
+        while (isspace(c));
+        int val;
         switch (c) {
         case 'a':
             scanf("%d", &val);
-            cur = root;
-            while (cur->next != NULL)
-                cur = cur->next;
-            tmp = (node*) alloc(sizeof(node));
-            tmp->value = val;
-	    tmp->next = NULL;
-            cur->next = tmp;
-	    fprintf(stderr, "Done, %p was appended\n", tmp);
+            append(root, val);
             break;
         case 'r':
             scanf("%d", &val);
-            cur = root;
-            tmp = root;
-            while (cur->next != NULL) {
-                tmp = cur;
-                cur = cur->next;
-                if (cur->value == val) {
-                    fprintf(stderr, "Erasing %p...\n", cur);
-		    fprintf(stderr, "Prev is %p, cur->next is %p\n", tmp, cur->next);
-		    tmp->next = cur->next;
-                    free(cur);
-		    break;
-                }
-            }
+            erase(root, val);
             break;
         case 'p':
-            cur = root;
-            while (cur->next != NULL) {
-                cur = cur->next;
-                printf("%d ", cur->value);
-            }
-	    printf("\n");
+            print(root);
             break;
         case 'q':
-            cur = root;
-            while (cur->next != NULL) {
-                tmp = cur;
-                free(tmp);
-                cur = cur->next;
-            }
-            exit(0);
+            clean(root);
+            return 0;
+        case 'b': // add cycle
+            add_cycle(root);
             break;
-	case 'b': // add cycle
-	    cur = root;
-	    while (cur->next != NULL)
-	        cur = cur->next;
-	    cur->next = root;
-	    break;
         case 'c': // check for cycles
-            cur = tmp = root;
-            char torch = 0, wasCycle = 0;
-            for (;;) {
-                if (torch) {
-                    if (cur->next != NULL)
-                        cur = cur->next;
-                    else
-                        break;
-                } else {
-                    if (tmp->next != NULL && tmp->next->next != NULL)
-                        tmp = tmp->next->next;
-                    else
-                        break;
-                }
-                if (tmp == cur) {
-                    wasCycle = 1;
-                    break;
-                }
-                torch = !torch;
-            }
-            printf("%s\n", wasCycle ? "Cyclic" : "Non-Cyclic");
+            printf("%s\n", check_cycle(root) ? "Cyclic" : "Non-Cyclic");
             break;
-	case 'h':
-	    printf("a x - Add x to the list\n");
-	    printf("d x - Del first occurrence x from the list\n");
-	    printf("p   - Print the list content\n");
-	    printf("b   - Add cycle (break the list)\n");
-	    printf("c   - Check whether the list is cyclic\n");
-	    printf("q   - Quit\n");
-	    break;
+        case 'h':
+            printf("a x - Add x to the list\n");
+            printf("r x - Erase first occurrence x from the list\n");
+            printf("p   - Print the list content\n");
+            printf("b   - Add cycle (break the list)\n");
+            printf("c   - Check whether the list is cyclic\n");
+            printf("q   - Quit\n");
+            break;
         default:
             printf("Invalid command. Use h for help\n");
             break;

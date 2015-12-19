@@ -1,181 +1,173 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 struct Node {
-    int x;
-    struct Node* l;
+    int val;
     struct Node* r;
+    struct Node* l;
 };
 
 typedef struct Node Node;
 
-inline void check_alloc(void* ptr) {
-    if (ptr == NULL) {
-        fprintf(stderr, "Allocation failed\n");
+Node* init(int x) {
+    Node* tmp = (Node*) malloc(sizeof(Node));
+    if (tmp == NULL) {
+        fprintf(stderr, "ERROR: malloc returned NULL\n");
         exit(1);
     }
-}
-
-Node* create_node(int x) {
-    Node* tmp = (Node*) malloc(sizeof(Node));
-    check_alloc(tmp);
-    tmp->x = x;
+    tmp->val = x;
     tmp->l = NULL;
     tmp->r = NULL;
     return tmp;
 }
 
-void insert(Node* root, int x) {
-    if (root->r == NULL) {
-        root->r = create_node(x);
-        return;
-    }
-
-    Node* cur = root->r;
-    for (;;) {
-        if (cur->x < x) {
-            if (cur->r == NULL) {
-                cur->r = create_node(x);
-                return;
-            }
-            cur = cur->r;
-        } else {
-            if (cur->l == NULL) {
-                cur->l = create_node(x);
-                return;
-            }
-            cur = cur->l;
-        }
-    }
-
-    return;
+Node* insert(Node* root, int x) {
+    if (root == NULL) 
+        return init(x);
+    else if (root->val < x)
+        root->r = insert(root->r, x);
+    else if (root->val > x)
+        root->l = insert(root->l, x);
+    return root;
 }
 
-void erase(Node* root, int x) {
-    Node* cur = root->r;
-    Node* last = root;
-    int dir = 1;
-    for (;;) {
-        if (x == cur->x) {
-            if (cur->r == NULL) {
-                cur->r = cur->l;
-                cur->l = NULL;
-            }
-            if (dir == 1)
-                last->r = cur->r;
-            else
-                last->l = cur->r;
-            if (cur->r == NULL) {
-                free(cur);
-                return;
-            }
-
-            Node* tmp = cur->r;
-            while (tmp->l != NULL)
-                tmp = tmp->l;
-            tmp->l = cur->l;
-            free(cur);
-            return;
-        }
-        last = cur;
-        if (cur->x > x) {
-            cur = cur->l;
-            dir = 0;
-        } else {
-            cur = cur->r;
-            dir = 1;
-        }
-    }
+Node* min(Node* root) {
+    if (root == NULL)
+        return NULL;
+    while (root->l)
+        root = root->l;
+    return root;
 }
 
-int check(Node* root, int x) {
-    if (root->r == NULL)
-        return 0;
-    Node* cur = root->r;
-    for (;;)
-        if (cur == NULL)
+int find(Node* root, int x) {
+    if (root->val == x) 
+        return 1;
+    if (root->val > x) {
+        if (root->l)
+            find(root->l, x);
+        else
             return 0;
-        else if (cur->x == x)
-            return 1;
-        else if (cur->x > x)
-            cur = cur->l;
-        else 
-            cur = cur->r;
+    } else if (root->val < x) {
+        if (root->r)
+            find(root->r, x);
+        else
+            return 0;
+    }
+    return 0;
 }
 
-void lower_print(Node* cur) {
-    if (cur == NULL)
-        return;
-    lower_print(cur->l);
-    printf("%d ", cur->x);
-    lower_print(cur->r);
+Node* erase(Node* root, int x) {
+    if (root == NULL)
+        return NULL;
+    if (root->val < x)
+        root->r = erase(root->r, x);
+    else if (root->val > x)
+        root->l = erase(root->l, x);
+    else {
+        if ((root->r) && (root->l)) {
+            Node* right_min = min(root->r);
+            root->val = right_min->val;
+            root->r = erase(root->r,right_min->val);
+            return root;
+        } else if (root->r) {
+            Node* cur = root->r;
+            free(root);
+            return cur;
+        } else if (root->l) {
+            Node* cur = root->l;
+            free(root);
+            return cur;
+        } else {
+            free(root);
+            return NULL;
+        }
+    }
+    return root;
 }
 
-void upper_print(Node* cur) {
-    if (cur == NULL)
+void print(Node* root) {
+    if (root == NULL)
         return;
-    upper_print(cur->r);
-    printf("%d ", cur->x);
-    upper_print(cur->l);
+    
+    printf("(%d ",root->val);
+    if (root->l)
+        print(root->l);
+    else
+        puts("null");
+    puts(" ");
+    if (root->r) {
+        print(root->r);
+        puts(")");
+    } 
+    else
+        puts(" null)");
 }
 
-void print(Node* root, int r) {
-    if (root->r == NULL)
+void print_min(Node* root) {
+    if (root == NULL)
         return;
-    Node* cur = root->r;
-    if (r == 0)
-        lower_print(cur);
-    else if (r == 1)
-        upper_print(cur);
-    printf("\n");
+    print_min(root->l);
+    printf("%d\n", root->val);
+    print_min(root->r);
 }
 
-void clean(Node* cur) {
-    if (cur == NULL)
+void print_max(Node* root) {
+    if (root == NULL)
         return;
-    clean(cur->l);
-    clean(cur->r);
-    free(cur);
+    print_max(root->r);
+    printf("%d ", root->val);
+    print_max(root->l);
+}
+
+void clean_tree(Node* root) {
+    if (root == NULL)
+        return;
+    clean_tree(root->l);
+    clean_tree(root->r);
+    free(root);
 }
 
 int main() {
-    Node* root = (Node*) malloc(sizeof(Node));
-    check_alloc(root);
-    root->l = root->r = NULL;
-    root->x = 0;
     char c;
-    int x;
+    Node* root = NULL;
+    printf("Type the command (h for help)\n");
     for (;;) {
-        scanf(" %c", &c);
+        do
+            c = getchar();
+        while (isspace(c));
+        int val;
         switch (c) {
         case 'a':
-            scanf("%d", &x);
-            insert(root, x);
-            printf("added %d\n", x);
+            scanf("%d", &val);
+            root = insert(root, val);
             break;
         case 'r':
-            scanf("%d", &x);
-            erase(root, x);
-            printf("erased %d\n", x);
-            break;
-        case 'c':
-            scanf("%d", &x);
-            if (check(root, x))
-                printf("YES\n");
-            else
-                printf("NO\n");
+            scanf("%d", &val);
+            root = erase(root, val);
             break;
         case 'p':
-            scanf("%d", &x);
-            print(root, x);
+            print(root);
+            break;
+        case 'x':
+            print_max(root);
+            break;
+        case 'm':
+            print_min(root);
             break;
         case 'q':
-            clean(root);
-            printf("cleaning done\n");
+            clean_tree(root);
             return 0;
+        case 'h':
+            printf("a x - Add x to the tree\n");
+            printf("r x - Erase x\n");
+            printf("p   - Print the tree\n");
+            printf("x   - Print from min to max\n");
+            printf("m   - Print from max to min\n");
+            printf("q   - Quit\n");
+            break;
         default:
-            fprintf(stderr, "invalid command\n");
+            printf("Invalid command. Use h for help\n");
+            break;
         }
     }
     return 0;

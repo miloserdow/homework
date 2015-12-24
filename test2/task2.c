@@ -26,7 +26,7 @@ int main() {
     // compare
     while (*p1 && *p2 && *p1 == *p2)
         --p1, --p2;
-    if (strlen(n1 + 1) > strlen(n2 + 1) || *p1 > *p2) {
+    if ((p1 - n1) > (p2 - n2)|| *p1 > *p2) {
         printf("first is greater\n");
     } else if (strlen(n2 + 1) > strlen(n1 + 1) || *p2 > *p1) {
         printf("second is greater\n");

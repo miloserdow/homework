@@ -4,6 +4,13 @@
 
 typedef struct node node;
 
+/**
+* The last remark is unclear: if this means reimplementing the whole
+* task without fake root, I don't agree it's necessary as
+* rewriting many lines of code and additional checks are required in
+* such case :/
+**/
+
 // This function tries to allocate memory and checks whether NULL is returned
 void* alloc(size_t sz) {
     void* res = malloc(sz);
@@ -17,16 +24,15 @@ void* alloc(size_t sz) {
 struct node {
     int value;
     node* next;
+    node* last;
 };
 
 void append(node* root, int val) {
-    node* cur = root;
-    while (cur->next != NULL)
-        cur = cur->next;
     node* tmp = (node*) alloc(sizeof(node));
     tmp->value = val;
     tmp->next = NULL;
-    cur->next = tmp;
+    root->last->next = tmp;
+    root->last = tmp;
 }
 
 void erase(node* root, int val) {
@@ -37,6 +43,10 @@ void erase(node* root, int val) {
         cur = cur->next;
         if (cur->value == val) {
             tmp->next = cur->next;
+            if (cur->next == NULL)
+                tmp->last = tmp;
+            else
+                tmp->last = cur->next;
             free(cur);
             break;
         }
@@ -56,8 +66,8 @@ void clean(node* root) {
     node* cur = root;
     while (cur->next != NULL) {
         node* tmp = cur;
-        free(tmp);
         cur = cur->next;
+        free(tmp);
     }
 }
 
@@ -96,6 +106,7 @@ int check_cycle(node* root) {
 int main() {
     node* root = (node*) alloc(sizeof(node));
     root->next = NULL;
+    root->last = root;
     char c;
     printf("Type the command (h for help)\n");
     for (;;) {

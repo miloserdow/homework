@@ -20,7 +20,7 @@ int main() {
     }
     
     for (i = 0; i <= n; i++)
-        if (a[i])
+        while (a[i]--)
             printf("%d ", i);
     putchar('\n');
     return 0;

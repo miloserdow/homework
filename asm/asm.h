@@ -2,6 +2,7 @@
 #define ASM_H
 
 typedef enum {
+    SKIP = 0, // skip line
     LD = 1, // load from mem to stack
     ST, // unload from stack into mem
     LDC, // load num into stack

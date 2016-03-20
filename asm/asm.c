@@ -20,7 +20,13 @@ void do_add();
 void do_sub();
 void do_cmp();
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: ./FakeASM <source file>");
+        exit(1);
+    }
+    char* fname = argv[1];
+
     // Init phase
     memory = (int32_t*) malloc(sizeof(int32_t) * MX);
     if (memory == NULL) {
@@ -37,7 +43,7 @@ int main() {
     program = (instr_t*) malloc(sizeof(instr_t) * MX_INSTR);
     
     // Program reading phase
-    FILE* inp = fopen("input.txt", "r");
+    FILE* inp = fopen(fname, "r");
     if (inp == NULL) {
         fprintf(stderr, "file could not be opened for some reason\n");
         exit(1);
@@ -97,7 +103,14 @@ int main() {
             program[cnt].type = RET;
         }
         else {
-            fprintf(stderr, "unrecognized command: %s\n", cur_instr);
+            int i = 0;
+            for (i = 0; i < strlen(cur_instr); i++) {
+                if (!isspace(cur_instr[i])) {
+                    fprintf(stderr, "unrecognized command: %s\n", cur_instr);
+                    exit(1);
+                }
+            }
+            program[cnt].type = SKIP;
         }
         cnt++;
     }
@@ -114,6 +127,8 @@ int main() {
     int ip = 0x0;
     for (;;) {
         switch (program[ip].type) {
+        case SKIP:
+            break;
         case LD:
             do_ld(program[ip].arg);
             break;

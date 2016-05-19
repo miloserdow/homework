@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
     ssize_t read;
     int cnt = 0;
     while ((read = getline(&line, &len, inp)) != -1) {
+        char* cut = strchr(line, ';');
+        if (cut != NULL) *cut = '\0';
         char* m = strchr(line, ':');
         char* cur_label = 0;
         char* cur_instr = (char*) malloc(sizeof(char) * MX_INSTR);

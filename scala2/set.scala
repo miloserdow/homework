@@ -17,7 +17,7 @@ object set {
         contains(s, x) && !contains(t, x)
 
     def filter(s: Set, p: Int => Boolean): Set = x =>
-    c   ontains(s, x) && p(x)
+        contains(s, x) && p(x) // oops :)
 
     def takeAll(s: Set): String = {
         val bound = 1000

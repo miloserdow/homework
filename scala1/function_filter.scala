@@ -6,10 +6,10 @@ def isEven(x: Int): Boolean = {
 }
 
 def list_filter_func(lst: List[Int], func: (Int) => Boolean): List[Int] = {
-    if (lst == Nil) 
-        Nil 
+    if (lst == Nil)
+        Nil
     else if (func(lst.head))
-        List(lst.head) ++ list_filter(lst.tail, lst.head) 
+        lst.head :: list_filter(func, lst.tail)
     else 
-        list_filter(lst.tail, lst.head)
+        list_filter(func, lst.tail)
 }

@@ -13,7 +13,7 @@ loop:
     st 3
     ldc 1
     ld 3
-    ldc 200000
+    ldc 2000000
     cmp
     sub
     br break

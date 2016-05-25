@@ -1,14 +1,16 @@
-def check(lst: List[Char], balance: Int = 0): Boolean = {
-    if (lst == Nil) { 
-        if (balance == 0) 
-            true 
-        else 
-            false
+def balance(chars: List[Char]): Boolean = {
+  def numbs(ls: List[Char], op: Int): Boolean = {
+    if (ls.isEmpty) 
+       op == 0
+    else if (ls.head == '(') 
+      numbs(ls.tail, op + 1)
+    else if (ls.head == ')') {
+      if (op != 0) 
+        numbs(ls.tail, op - 1)
+      else 
+        false
     }
-    else if(lst.head == '(') {
-        check(lst.tail, balance + 1) 
-    }
-    else { 
-        check(lst.tail, balance - 1)
-    }
+    else numbs(ls.tail, op)
+  }
+  numbs(chars, 0)
 }

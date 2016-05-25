@@ -1,6 +1,10 @@
 def len(lst: List[Int]): Int = {
-    if (lst == Nil) 
-       0 
-    else
-       1 + len(lst.tail)
+    @tailrec
+    def func(lst: List[Int], acc: Int): Int = {
+        if (lst.isEmpty) 
+            acc 
+        else 
+            func(lst.tail, acc + 1)
+    }
+    func(lst, 0)
 }

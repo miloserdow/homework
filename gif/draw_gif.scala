@@ -66,7 +66,7 @@ object Timer {
 }
 
 object render extends SimpleSwingApplication {
-    val file = new Decoder("anim.gif")
+    val file = new Decoder("lol.gif")
     val width = file.header.width
     val height = file.header.height
     val scale = 100

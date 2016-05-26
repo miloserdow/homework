@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "stack.h"
 #include "hash_table.h"
 #include "asm.h"
@@ -48,11 +49,11 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "file could not be opened for some reason\n");
         exit(1);
     }
-    char * line = NULL;
+    char* line = (char*) malloc(500 * sizeof(char));
     size_t len = 0;
     ssize_t read;
     int cnt = 0;
-    while ((read = getline(&line, &len, inp)) != -1) {
+    while (fgets(line, 500, inp) != NULL) {
         char* cut = strchr(line, ';');
         if (cut != NULL) *cut = '\0';
         char* m = strchr(line, ':');
@@ -172,6 +173,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Destroy phase
+    free(line);
     free(program);
     delete_table(labels);
     stackDestroy(st);

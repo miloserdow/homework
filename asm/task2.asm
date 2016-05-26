@@ -1,4 +1,4 @@
-	ldc 1000
+	ldc 10001
 	st 0
 	ldc 1
 	st 4

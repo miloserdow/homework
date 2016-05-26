@@ -1,6 +1,8 @@
 #ifndef ASM_H
 #define ASM_H
 
+#include <stdint.h>
+
 typedef enum {
     SKIP = 0, // skip line
     LD = 1, // load from mem to stack

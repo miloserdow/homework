@@ -31,7 +31,7 @@ case class Graphics(delay: Int, tColor: Int)
 
 case class PIC(images: List[Int], imageDescriptor: ImageDescriptor, graphics: Graphics)
 
-class DataPanel(data: Array[Array[Color]], BG: String) extends Panel 
+class DataPanel(data: Array[Array[Color]], BG: String) extends Panel {
     override def paintComponent(g: Graphics2D) {
         val width = data.length
         val height = data.map(_.length).max

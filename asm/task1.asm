@@ -18,6 +18,7 @@ compare:
     ret
     
 counter: 
+    st 10
     ld 2
     ldc 1
     add
@@ -42,19 +43,22 @@ counter:
     add
     ret
     
-compare2: 
+compare2:
     ldc 1
     cmp
     br sum
+    st 10
     ld 3
     ret
     
-sum: 
+sum:
+    st 10
     ld 1
     ld 3
     add
     st 3
     ld 3
     br counter
+
     ret
 
